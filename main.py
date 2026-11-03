@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from openai import OpenAI
+import json
 
 load_dotenv()
 client = OpenAI()
@@ -76,6 +77,10 @@ have that information.
 help with menu questions.
 - Keep answers short and friendly, and mention allergens when the \
 customer asks about an item that has them.
+- Reply in plain text only, as it will be shown in a terminal. \
+Do not use Markdown: no asterisks, no bold, no headers, no bullet symbols. \
+If you need to list items, write them on separate lines in a simple form, \
+like "Green Tea - $2.90".
 """
 
 GREETING = (
@@ -91,6 +96,29 @@ def get_response(messages):
     )
     return response.choices[0].message.content
 
+def parse_extraction(text):
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        print("Error: model did not return valid JSON")
+        return []
+    
+def lookup(parsed):
+    results = []
+    for entry in parsed:
+        if "items" in entry:
+            for item_name in entry["items"]:
+                item_info = MENU.get(item_name)
+                if item_info is None:
+                    print(f"Warning: item '{item_name}' not found in menu")
+                elif item_info not in results:
+                    results.append(item_info)
+        elif "category" in entry:
+            category_name = entry["category"]
+            for item_info in MENU.values():
+                if item_info["category"] == category_name and item_info not in results:
+                    results.append(item_info)
+    return results
 
 def main():
     messages = [{"role": "system", "content": KOFI_PROMPT}]
@@ -105,10 +133,22 @@ def main():
         clean_input = user_input.replace(DELIMITER, "")
         if not clean_input.strip():
             continue
+        extraction_messages = [
+            {"role": "system", "content": EXTRACTION_PROMPT},
+            {"role": "user", "content": f"{DELIMITER}{clean_input}{DELIMITER}"},
+        ]
+        
+        raw = get_response(extraction_messages)
+        parsed = parse_extraction(raw)
+        
+        results = lookup(parsed)
+        
         messages.append({"role": "user", "content": f"{DELIMITER}{clean_input}{DELIMITER}"})
-        reply = get_response(messages)
-        print(f"Kofi: {reply}")
-        messages.append({"role": "assistant", "content": reply})
+        messages.append({"role": "assistant", "content": f"Relevant menu information: {json.dumps(results, indent=2)}"})
+
+        response = get_response(messages)
+        print(f"Kofi: {response}")
+        messages.append({"role": "assistant", "content": response})
 
 
 if __name__ == "__main__":
