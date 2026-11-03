@@ -1,8 +1,12 @@
 # Coffee Shop AI Assistant
 
-A terminal chatbot that answers questions about a coffee shop menu. I built it after
-finishing the DeepLearning.AI course "Building Systems with the ChatGPT API". It's one of
-my first AI projects, so it's small on purpose.
+This is my first AI project. After a few months of learning about AI, I got
+more into NLP and LLMs. Once I understood how LLMs work and where their limits are,
+I decided to build my first project and learn the OpenAI API along the way.
+
+It's a terminal chatbot that answers questions about a coffee shop menu. I see it more
+as a learning project than a production tool, but it still solves a small real problem
+and does what it's supposed to do. I'm happy with how it turned out.
 
 ## How it works
 1. The user input is checked with the OpenAI Moderation API.
