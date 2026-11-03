@@ -133,6 +133,15 @@ def main():
         clean_input = user_input.replace(DELIMITER, "")
         if not clean_input.strip():
             continue
+        moderation = client.moderations.create(
+            model="omni-moderation-latest",
+            input=clean_input,
+        )
+        flagged = moderation.results[0].flagged
+        if flagged:
+            print("Kofi: Sorry, I cannot respond to that message.")
+            continue
+
         extraction_messages = [
             {"role": "system", "content": EXTRACTION_PROMPT},
             {"role": "user", "content": f"{DELIMITER}{clean_input}{DELIMITER}"},
