@@ -20,34 +20,36 @@ API errors are caught, so the bot keeps running if a call fails.
 
 ## Run it
 1. Create a virtual environment and install the dependencies:
-
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
+   ```
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 2. Create a `.env` file in the project folder with your key:
-
-OPENAI_API_KEY=your-key
-
+   ```
+   OPENAI_API_KEY=your-key
+   ```
 3. Start the chatbot (type `quit` to exit):
-
-python main.py
+   ```
+   python main.py
+   ```
 
 The model name is set in one place (`MODEL` in `main.py`). If it gets deprecated,
 change it there.
 
 ## Evaluation
-`evaluate.py` runs the extraction step on a list of test questions and prints the
-result next to the expected one, so I can check by eye whether a prompt change broke
-anything. Run it with `python evaluate.py`. Automatic scoring is on my to-do list.
+`evaluate.py` runs the extraction step on a list of test questions (typos, several items
+in one question, questions outside the menu) and compares the result with the expected
+one. It prints passed/failed for every question and a final score like `10/10`.
+Run it with `python evaluate.py`.
+
+The model has no fixed temperature, so results can differ between runs. Also, I tuned
+the extraction prompt on these same questions, so the score is probably a bit optimistic.
+A separate set of unseen questions would be a fairer test.
 
 ## Known limitations
 - Questions without a name or category ("cheapest drink", "anything vegan") are not supported yet.
+- Typos are handled by the model, so badly distorted names may not be recognized.
 - Menu data stays in the chat history every turn, so long chats get bigger.
 - The injection classifier only sees the latest message, so an attack spread over several messages could get through.
 - Prompts are only a request to the model, so none of these checks are a guarantee.
-
-## What I'd add next
-- Filters for price and vegan options
-- Automatic scoring in the evaluation script
-- Taking orders
