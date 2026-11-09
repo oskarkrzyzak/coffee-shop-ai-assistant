@@ -52,14 +52,18 @@ Output a JSON list of objects. Each object must have exactly one of the followin
 
 Use only double quotes so the output is valid JSON.
 Item names and categories must come from the allowed lists below. If the customer writes a name in a different spelling or case, output the exact name from the list.
+Customers may make typos or use informal names (for example "lattee", "flat wite", "coffee latte"). If a word is clearly a misspelling or variant of a name from the allowed list, output the exact name from the list. If the customer asks for something that is not on the menu at all (for example "burger" or "pizza"), do not map it to the closest item. In that case output an empty list: []
 If the query does not mention any menu items or categories, output an empty list: []
 
 Allowed categories: {", ".join(CATEGORIES)}
 Allowed items: {", ".join(ITEM_NAMES)}
 
-Example:
+Examples:
 Query: {DELIMITER}How much is a cappuccino, and what teas do you have?{DELIMITER}
 Output: [{{"items": ["Cappuccino"]}}, {{"category": "Tea"}}]
+
+Query: {DELIMITER}how much is a lattee and a flat wite?{DELIMITER}
+Output: [{{"items": ["Latte", "Flat White"]}}]
 
 Only output the JSON list, with nothing else.
 """
